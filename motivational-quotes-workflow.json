@@ -1,0 +1,310 @@
+{
+  "name": "Motivational quotes",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "4d795ed0-8eff-4a95-a60b-568902319351",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate a fresh motivational quote for today, {{ $now.toFormat(\"cccc, LLLL d, yyyy\") }}. Don't add any other information.",
+        "options": {
+          "systemMessage": "You are a motivational writer. Return exactly one short, original motivational quote and nothing else — no preamble, no attribution, no extra text."
+        }
+      },
+      "id": "abe5fe75-7df0-4e7c-b67f-2525e4a2eb54",
+      "name": "Motivational Quotes Generator ",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -208,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "947747e7-ba0d-497c-9d62-d135e8e73317",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        16
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7WGketd9vnlIJFa7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appRTHeMq79580gyW",
+          "mode": "list",
+          "cachedResultName": "Untitled Base",
+          "cachedResultUrl": "https://airtable.com/appRTHeMq79580gyW"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbltOKW7RKwSSYsPX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appRTHeMq79580gyW/tbltOKW7RKwSSYsPX"
+        },
+        "options": {}
+      },
+      "id": "0e79a49a-8e78-4c11-9092-76dac77f2c8f",
+      "name": "Search records",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        -176
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "MIyPAOmEsNmDrxok",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "email-exists",
+              "leftValue": "={{ $json.fields['motivational quotes'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4e9d5c68-824d-4b5d-bfb9-fde017d4ca47",
+      "name": "Has Email",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields['motivational quotes'] }}",
+        "subject": "Success needs Motivation ",
+        "message": "={{ $('Motivational Quotes Generator ').item.json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "cb7d67f2-a43c-461d-a480-d4af1772489d",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        -208
+      ],
+      "webhookId": "b2bcb41a-65ab-418f-843a-e3f6de5f8837",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GaBVHItENK7i1A5X",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "id": "0daea93f-cf2f-4758-80ac-21c28bf338ef",
+      "name": "Every Day At 6AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -416,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Daily Motivational Quotes\nGenerates a fresh AI motivational quote every morning at 6 AM and emails it. You can also trigger it manually anytime with **Execute workflow**.",
+        "height": 88,
+        "width": 1000
+      },
+      "id": "8604c2c7-dec8-415b-8519-afc298428772",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        -2864
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Triggers\nRuns every day at 6 AM, or on demand.",
+        "height": 360,
+        "width": 260
+      },
+      "id": "26816a0f-d815-46b8-bc16-5f19e3610f40",
+      "name": "Triggers",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        -672
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Generate quote\nFetches records from Airtable, then asks Google Gemini for one fresh quote.",
+        "height": 748,
+        "width": 460
+      },
+      "id": "ee3d1ba9-cece-456c-8ce4-84346a095664",
+      "name": "Generate quote",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. Deliver\nSends the quote by email via Gmail.",
+        "height": 284,
+        "width": 260
+      },
+      "id": "f6ed7716-55db-491e-9074-6ee263769310",
+      "name": "Deliver",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        -608
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Motivational Quotes Generator ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Motivational Quotes Generator ": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Motivational Quotes Generator ",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Has Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Email": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Day At 6AM": {
+      "main": [
+        [
+          {
+            "node": "Motivational Quotes Generator ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "34f9779a-e818-4535-b13d-56f367cf4bfa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c5a5cce8ff1663e1efa59c7b355a77fce9bb0abc698d464c2cf5967a3e5ce2ec"
+  },
+  "nodeGroups": [],
+  "id": "oiaIKItzEC2pEb2x",
+  "tags": []
+}
